@@ -14,6 +14,6 @@ export class DiscordClient extends Client {
   }
 }
 
-export const voxClient = new DiscordClient({
+export const voxedClient = new DiscordClient({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
 });

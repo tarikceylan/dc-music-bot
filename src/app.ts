@@ -2,13 +2,13 @@ import 'dotenv/config';
 
 import { executeCommand } from './core/execute';
 import { bindCommands } from './utils';
-import { voxClient } from './core';
+import { voxedClient } from './core';
 import { registerClientEvents, registerGuildEvents } from './events';
 
-registerClientEvents(voxClient);
-registerGuildEvents(voxClient);
+registerClientEvents(voxedClient);
+registerGuildEvents(voxedClient);
 
-bindCommands(voxClient);
-executeCommand(voxClient);
+bindCommands(voxedClient);
+executeCommand(voxedClient);
 
-voxClient.login(process.env.TOKEN);
+voxedClient.login(process.env.TOKEN);
