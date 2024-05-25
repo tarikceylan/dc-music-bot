@@ -5,15 +5,12 @@ import 'dotenv/config';
 
 const rest = new REST().setToken(process.env.TOKEN);
 
-(async () => {
+export const deployGuildCommands = async (guildId: string) => {
   try {
     const commands = await prepareCommandsForDeploy();
 
     await rest.put(
-      Routes.applicationGuildCommands(
-        process.env.CLIENT_ID,
-        process.env.GUILD_ID
-      ),
+      Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),
       { body: commands }
     );
 
@@ -21,4 +18,4 @@ const rest = new REST().setToken(process.env.TOKEN);
   } catch (error) {
     console.error(error);
   }
-})();
+};

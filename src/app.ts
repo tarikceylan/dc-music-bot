@@ -1,20 +1,22 @@
-import { Events, GatewayIntentBits } from 'discord.js';
 import 'dotenv/config';
 
-import { DiscordClient } from './core/client';
 import { executeCommand } from './core/execute';
 import { bindCommands } from './utils';
+import { voxClient } from './core';
+import { Client, Events } from 'discord.js';
+import { deployGuildCommands } from './utils/deployGuildCommands';
 
-const client = new DiscordClient({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
+bindCommands(voxClient);
+
+executeCommand(voxClient);
+
+voxClient.on(Events.ClientReady, (client: Client) => {
+  console.log(`${client.user.tag} is ALIVE!`);
 });
 
-bindCommands(client);
-
-executeCommand(client);
-
-client.on(Events.ClientReady, (readyClient) => {
-  console.log(`${readyClient.user.tag} is ALIVE!`);
+voxClient.on(Events.GuildCreate, (guild) => {
+  deployGuildCommands(guild.id);
+  console.log(`Joined to a new server: ${guild.name}`);
 });
 
-client.login(process.env.TOKEN);
+voxClient.login(process.env.TOKEN);

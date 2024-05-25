@@ -18,7 +18,7 @@ const play = {
     .setName('play')
     .setDescription('Plays the audio in the link')
     .addStringOption((option) =>
-      option.setName('link').setDescription('Youtube Link').setRequired(true)
+      option.setName('url').setDescription('Youtube Link').setRequired(true)
     ),
   async execute(interaction: CommandInteraction) {
     const member = interaction.member as GuildMember;
@@ -35,7 +35,7 @@ const play = {
       );
     }
 
-    const link = interaction.options.get('link').value as string;
+    const link = interaction.options.get('url').value as string;
 
     if (!ytdl.validateURL(link)) {
       return interaction.reply('Provide a valid youtube video link!');
