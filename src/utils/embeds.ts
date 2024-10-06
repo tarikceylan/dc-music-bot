@@ -1,5 +1,5 @@
 import { EmbedBuilder, GuildMember } from 'discord.js';
-import { videoInfo } from 'ytdl-core';
+import { videoInfo } from '@distube/ytdl-core';
 
 export const prepareYoutubeEmbed = async (
   content: videoInfo,
