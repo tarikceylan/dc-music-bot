@@ -8,6 +8,7 @@ import {
   createAudioPlayer,
   createAudioResource,
   joinVoiceChannel,
+  getVoiceConnection,
 } from '@discordjs/voice';
 import ytdl from '@distube/ytdl-core';
 
@@ -23,11 +24,6 @@ const play = {
   async execute(interaction: CommandInteraction) {
     const member = interaction.member as GuildMember;
     const channel = member.voice.channel;
-    const player = createAudioPlayer({
-      behaviors: {
-        noSubscriber: NoSubscriberBehavior.Pause,
-      },
-    });
 
     if (!channel) {
       return interaction.reply(
@@ -35,28 +31,50 @@ const play = {
       );
     }
 
+    await interaction.deferReply();
+
     const link = interaction.options.get('url').value as string;
 
     if (!ytdl.validateURL(link)) {
-      return interaction.reply('Provide a valid youtube video link!');
+      return interaction.editReply('Provide a valid youtube video link!');
     }
 
-    const videoInfo = await ytdl.getInfo(link);
-    const stream = ytdl(link, { filter: 'audioonly' });
-    const resource = createAudioResource(stream);
+    try {
+      const videoInfo = await ytdl.getInfo(link);
+      const stream = ytdl(link, { filter: 'audioonly' });
+      const resource = createAudioResource(stream);
 
-    const connection = joinVoiceChannel({
-      channelId: channel.id,
-      guildId: channel.guild.id,
-      adapterCreator: channel.guild.voiceAdapterCreator,
-      selfDeaf: false,
-      selfMute: false,
-    });
+      const existingConnection = getVoiceConnection(channel.guild.id);
+      let connection;
 
-    connection.subscribe(player);
-    player.play(resource);
+      if (existingConnection) {
+        connection = existingConnection;
+      } else {
+        connection = joinVoiceChannel({
+          channelId: channel.id,
+          guildId: channel.guild.id,
+          adapterCreator: channel.guild.voiceAdapterCreator,
+          selfDeaf: false,
+          selfMute: false,
+        });
+      }
 
-    interaction.reply(await prepareYoutubeEmbed(videoInfo, member));
+      const player = createAudioPlayer({
+        behaviors: {
+          noSubscriber: NoSubscriberBehavior.Pause,
+        },
+      });
+
+      connection.subscribe(player);
+      player.play(resource);
+
+      await interaction.editReply(await prepareYoutubeEmbed(videoInfo, member));
+    } catch (error) {
+      console.error(error);
+      await interaction.editReply(
+        'An error occurred while trying to play the audio.'
+      );
+    }
   },
 };
 
